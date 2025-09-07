@@ -1,0 +1,40 @@
+
+workflows:
+  android-release-build:
+    name: Android Release Build
+    # Define el tipo de máquina virtual para la compilación
+    instance_type: mac_mini_m1 
+    environment:
+      flutter: stable # Usa la última versión estable de Flutter
+      groups:
+        # Carga el grupo de variables de entorno seguras que creaste en la UI de Codemagic.
+        # Este grupo debe contener CM_KEYSTORE, CM_KEYSTORE_PASSWORD, etc.
+        - android_signing 
+    scripts:
+      - name: Set up keystore
+        script: | 
+          # Decodifica el keystore (que está en Base64 en la variable de entorno) y lo guarda como un archivo.
+          echo $CM_KEYSTORE | base64 --decode > $CM_BUILD_DIR/keystore.jks
+      - name: Set up key.properties file for signing
+        script: | 
+          # Crea el archivo key.properties dinámicamente usando las variables de entorno.
+          # ¡Este archivo NO debe estar en tu repositorio de Git!
+          echo "storeFile=$CM_BUILD_DIR/keystore.jks" > android/key.properties
+          echo "storePassword=$CM_KEYSTORE_PASSWORD" >> android/key.properties
+          echo "keyPassword=$CM_KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$CM_KEY_ALIAS" >> android/key.properties
+      - name: Set up local.properties
+        script: | 
+          # Le dice a Android dónde encontrar el SDK de Flutter en la máquina de Codemagic.
+          echo "flutter.sdk=$FLUTTER_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Get Flutter packages
+        script: | 
+          flutter packages pub get
+      - name: Build AAB with Flutter
+        script: | 
+          # El comando para construir el App Bundle.
+          # Flutter usará automáticamente el key.properties que creamos para firmar la app.
+          flutter build appbundle --release --build-number=$CM_BUILD_NUMBER
+    artifacts:
+      # Le dice a Codemagic dónde encontrar el .aab final para que puedas descargarlo.
+      - build/app/outputs/bundle/release/*.aab

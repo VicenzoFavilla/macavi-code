@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1049571319674",
+    "project_id": "macavi-96e80",
+    "storage_bucket": "macavi-96e80.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1049571319674:android:1e800d292f5223108f00c3",
+        "android_client_info": {
+          "package_name": "com.Macavi.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1049571319674-b1has34r43hh4d1j6c56duhn9bvnqr59.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.Macavi.app",
+            "certificate_hash": "f366cd77ba62cd55a8d805fed04e0901140f4552"
+          }
+        },
+        {
+          "client_id": "1049571319674-tqbkq5708knf9prqtnfvpqq6d89lgptf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfclKPl066EZPPHiIa15-EyyTxGYzM2yk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1049571319674-d1dknd9u4qulrlt0c7nt9a3cr7boc7g8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1049571319674-227405ehn0hgto1l2bmpovir4jc840j9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.Macavi.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
