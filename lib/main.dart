@@ -144,8 +144,8 @@ void _handleDeepLinksGlobal() async {
     });
 
     // Obtiene el enlace inicial que abrió la app (cuando estaba cerrada).
-    // FIX: The method name depends on the app_links package version.
-    // For version 3.x (which you are using), the correct method is `getInitialAppLink()`.
+    // FIX: For app_links version 3.x (which is used in pubspec.lock),
+    // the correct method name is `getInitialAppLink()`.
     final Uri? initialLink = await appLinks.getInitialAppLink();
     if (initialLink != null) {
       print("🔹 Deep Link inicial encontrado: $initialLink");

@@ -51,10 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
   // Función para iniciar sesión con Google
   Future<void> _signInWithGoogle() async {
   try {
-    // CORRECCIÓN: El parámetro `scopes` ya no se usa en el constructor.
-    // Quitarlo soluciona el error "Couldn't find constructor 'GoogleSignIn'".
-    // El email se solicita por defecto.
+    // FIX: The `scopes` parameter is deprecated in newer versions and causes the
+    // "Couldn't find constructor" error. It must be removed.
     final GoogleSignIn googleSignIn = GoogleSignIn(
+      // scopes: ['email'], // This line must be removed.
       serverClientId: '1049571319674-tqbkq5708knf9prqtnfvpqq6d89lgptf.apps.googleusercontent.com',
     );
 
@@ -62,8 +62,6 @@ class _LoginScreenState extends State<LoginScreen> {
     if (googleUser == null) return;
 
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    // API CHANGE for google_sign_in v7+: `accessToken` is no longer provided.
-    // The credential for Firebase should be created with the idToken.
     final AuthCredential credential = GoogleAuthProvider.credential(
       idToken: googleAuth.idToken,
     );
