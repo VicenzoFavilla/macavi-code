@@ -74,12 +74,12 @@
     },
     {
       "name": "app_links",
-      "version": "3.5.1",
+      "version": "6.4.1",
       "dependencies": [
-        "flutter",
-        "flutter_web_plugins",
-        "gtk",
-        "plugin_platform_interface"
+        "app_links_linux",
+        "app_links_platform_interface",
+        "app_links_web",
+        "flutter"
       ]
     },
     {
@@ -296,26 +296,30 @@
       ]
     },
     {
-      "name": "gtk",
-      "version": "2.1.0",
+      "name": "app_links_web",
+      "version": "1.0.4",
       "dependencies": [
-        "ffi",
+        "app_links_platform_interface",
         "flutter",
-        "meta"
+        "flutter_web_plugins",
+        "web"
       ]
     },
     {
-      "name": "flutter_web_plugins",
-      "version": "0.0.0",
+      "name": "app_links_platform_interface",
+      "version": "2.0.2",
       "dependencies": [
-        "flutter"
+        "flutter",
+        "plugin_platform_interface"
       ]
     },
     {
-      "name": "plugin_platform_interface",
-      "version": "2.1.8",
+      "name": "app_links_linux",
+      "version": "1.0.3",
       "dependencies": [
-        "meta"
+        "app_links_platform_interface",
+        "flutter",
+        "gtk"
       ]
     },
     {
@@ -676,9 +680,27 @@
       ]
     },
     {
-      "name": "ffi",
-      "version": "2.1.4",
-      "dependencies": []
+      "name": "flutter_web_plugins",
+      "version": "0.0.0",
+      "dependencies": [
+        "flutter"
+      ]
+    },
+    {
+      "name": "plugin_platform_interface",
+      "version": "2.1.8",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "gtk",
+      "version": "2.1.0",
+      "dependencies": [
+        "ffi",
+        "flutter",
+        "meta"
+      ]
     },
     {
       "name": "_flutterfire_internals",
@@ -747,6 +769,11 @@
     {
       "name": "vm_service",
       "version": "15.0.2",
+      "dependencies": []
+    },
+    {
+      "name": "ffi",
+      "version": "2.1.4",
       "dependencies": []
     },
     {

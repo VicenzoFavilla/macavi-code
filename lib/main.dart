@@ -144,9 +144,9 @@ void _handleDeepLinksGlobal() async {
     });
 
     // Obtiene el enlace inicial que abrió la app (cuando estaba cerrada).
-    // FIX: For app_links version 3.x (which is used in pubspec.lock),
-    // the correct method name is `getInitialAppLink()`.
-    final Uri? initialLink = await appLinks.getInitialAppLink();
+    // FIX: After running `flutter pub upgrade`, the project will use a newer version of app_links.
+    // The correct method name for newer versions is `getInitialLink()`.
+    final Uri? initialLink = await appLinks.getInitialLink();
     if (initialLink != null) {
       print("🔹 Deep Link inicial encontrado: $initialLink");
       await _procesarDeepLinkGlobal(initialLink);

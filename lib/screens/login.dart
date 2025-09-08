@@ -63,8 +63,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _signInWithGoogle() async {
     _setLoading(true);
     try {
+      // FIX: The `scopes` parameter is deprecated in newer versions and causes the
+      // "Couldn't find constructor" error. It must be removed. The 'email' scope is requested by default.
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        serverClientId: '1049571319674-tqbkq5708knf9prqtnfvpqq6d89lgptf.apps.googleusercontent.com',
+        serverClientId: '1049571319674-tqbkq5708knf9prqtnfvpqq6d89lgptf.apps.googleusercontent.com', // This is correct
       );
 
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
