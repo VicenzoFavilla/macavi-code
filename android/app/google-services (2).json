@@ -18,7 +18,23 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.Macavi.app",
-            "certificate_hash": "ED73686CF1EE7FA275090DFB1C2924C96F626F05"
+            "certificate_hash": "f366cd77ba62cd55a8d805fed04e0901140f4552"
+          }
+        },
+        {
+          "client_id": "1049571319674-tb8aam3sqphi9tuiv4hmka7fsek2vfco.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.Macavi.app",
+            "certificate_hash": "e5c5d8db2f4cfe9f59c43b8fbc8ff476938edad9"
+          }
+        },
+        {
+          "client_id": "1049571319674-ua5jh2tdbdg147ke5l9see399r7hd7b9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.Macavi.app",
+            "certificate_hash": "ed73686cf1ee7fa275090dfb1c2924c96f626f05"
           }
         },
         {
