@@ -1,14 +1,13 @@
 import 'package:macavi/screens/registro.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+// 👇 Eliminamos google_sign_in, ya no es necesario
+// import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -19,16 +18,12 @@ class _LoginScreenState extends State<LoginScreen> {
   String _password = '';
   bool _isLoading = false;
 
-  // Helper to show a loading state
   void _setLoading(bool loading) {
     if (mounted) {
-      setState(() {
-        _isLoading = loading;
-      });
+      setState(() => _isLoading = loading);
     }
   }
 
-  // Helper to show user-friendly error messages
   void _showErrorSnackBar(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -37,111 +32,87 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // Función para iniciar sesión con email y contraseña
+  // Email/Password
   Future<void> login(String email, String password) async {
     _setLoading(true);
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
       if (userCredential.user != null) {
         await _handleSuccessfulLogin(userCredential.user!);
       }
     } on FirebaseAuthException catch (e) {
-      print('❌ Error de autenticación: ${e.code} - ${e.message}');
-      _showErrorSnackBar('Error: Correo o contraseña incorrectos.');
-    } catch (e) {
-      print('❌ Error inesperado: $e');
+      _showErrorSnackBar('Error: ${e.message ?? "Correo o contraseña incorrectos."}');
+    } catch (_) {
       _showErrorSnackBar('Ocurrió un error inesperado. Inténtalo de nuevo.');
     } finally {
       _setLoading(false);
     }
   }
 
-  // Función para iniciar sesión con Google
+  // ✅ Google con FirebaseAuth v6 (sin google_sign_in)
   Future<void> _signInWithGoogle() async {
     _setLoading(true);
     try {
-      // FIX: The build log shows google_sign_in v7.1.1 is being used.
-      // In this version, `serverClientId` is not passed in the constructor.
-      // It should be configured in your native Android/iOS project files if needed for backend auth.
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final provider = GoogleAuthProvider();
+      // Si querés scopes extra: provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+      final userCredential =
+          await FirebaseAuth.instance.signInWithProvider(provider);
 
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        _setLoading(false);
-        return; // User cancelled the sign-in
+      final user = userCredential.user;
+      if (user != null) {
+        await _handleSuccessfulLogin(user, name: user.displayName);
       }
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      if (userCredential.user != null) {
-        await _handleSuccessfulLogin(userCredential.user!, name: userCredential.user!.displayName);
-      }
+    } on FirebaseAuthException catch (e) {
+      // Errores típicos: account-exists-with-different-credential, popup-closed-by-user (web), etc.
+      _showErrorSnackBar('Google: ${e.code} ${e.message ?? ""}'.trim());
     } catch (e) {
-      print('❌ Error al iniciar sesión con Google: $e');
       _showErrorSnackBar('No se pudo iniciar sesión con Google.');
     } finally {
       _setLoading(false);
     }
   }
 
-  // Función para iniciar sesión con Ios
+  // Apple (como lo tenías)
   Future<void> _signInWithApple() async {
     _setLoading(true);
     try {
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
       );
-
       final credential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
-        rawNonce: null, // For production, you should generate and use a nonce.
       );
-
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
       final user = userCredential.user;
-
       if (user != null) {
         await _handleSuccessfulLogin(user, name: appleCredential.givenName);
       }
     } catch (e) {
-      print("❌ Error Apple Sign-In: $e");
       _showErrorSnackBar('No se pudo iniciar sesión con Apple.');
     } finally {
       _setLoading(false);
     }
   }
 
-  // Centralized function to handle post-login logic
   Future<void> _handleSuccessfulLogin(User user, {String? name}) async {
     final String uid = user.uid;
     final String? token = await user.getIdToken();
+    final prefs = await SharedPreferences.getInstance();
 
-    print('✅ Usuario autenticado, UID: $uid');
-    print('🔑 Token de usuario: $token');
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_id', uid);
     await prefs.setString('user_email', user.email ?? '');
-    await prefs.setString('user_token', token ?? '');
-    if (name != null) {
-      await prefs.setString('user_name', name);
-    }
+    if (token != null) await prefs.setString('user_token', token);
+    if (name != null) await prefs.setString('user_name', name);
 
     if (mounted) {
       Navigator.pushReplacementNamed(context, '/menu', arguments: uid);
     }
   }
 
-  // Función que maneja el envío del formulario
   void _submitLogin() {
-    if (_formKey.currentState?.validate() ?? false) {
+    if ((_formKey.currentState?.validate() ?? false)) {
       _formKey.currentState?.save();
       login(_email, _password);
     }
@@ -161,11 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 60),
-                  Image.asset(
-                    'assets/logomacavi.png',
-                    width: 100,
-                    height: 100,
-                  ),
+                  Image.asset('assets/logomacavi.png', width: 100, height: 100),
                   const Text(
                     'INICIAR SESIÓN',
                     style: TextStyle(
@@ -187,13 +154,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(30.0),
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor ingrese su correo';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) => _email = value!,
+                          validator: (v) =>
+                              (v == null || v.isEmpty) ? 'Por favor ingrese su correo' : null,
+                          onSaved: (v) => _email = v!.trim(),
                         ),
                         const SizedBox(height: 16.0),
                         TextFormField(
@@ -205,13 +168,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Por favor ingrese su contraseña';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) => _password = value!,
+                          validator: (v) =>
+                              (v == null || v.isEmpty) ? 'Por favor ingrese su contraseña' : null,
+                          onSaved: (v) => _password = v!.trim(),
                         ),
                         const SizedBox(height: 25.0),
                         ElevatedButton(
@@ -220,19 +179,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             backgroundColor: const Color.fromARGB(255, 233, 73, 25),
                             padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                           ),
-                          child: const Text(
-                            'INICIAR SESIÓN',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
+                          child: const Text('INICIAR SESIÓN',
+                              style: TextStyle(fontSize: 18, color: Colors.white)),
                         ),
                         const SizedBox(height: 30.0),
                         ElevatedButton.icon(
                           onPressed: _isLoading ? null : _signInWithGoogle,
                           icon: const Icon(Icons.login, color: Colors.white),
-                          label: const Text(
-                            'INICIAR SESIÓN CON GOOGLE',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
+                          label: const Text('INICIAR SESIÓN CON GOOGLE',
+                              style: TextStyle(fontSize: 18, color: Colors.white)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromARGB(255, 233, 73, 25),
                             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -242,10 +197,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ElevatedButton.icon(
                           onPressed: _isLoading ? null : _signInWithApple,
                           icon: const Icon(Icons.login, color: Colors.white),
-                          label: const Text(
-                            'INICIAR SESIÓN CON IOS',
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
+                          label: const Text('INICIAR SESIÓN CON IOS',
+                              style: TextStyle(fontSize: 18, color: Colors.white)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromARGB(255, 233, 73, 25),
                             padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -272,19 +225,14 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Text(
                   '¿No tenés una cuenta?',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color.fromARGB(255, 233, 73, 25),
-                  ),
+                  style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 233, 73, 25)),
                 ),
                 const SizedBox(height: 8.0),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegistroScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const RegistroScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
