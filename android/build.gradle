@@ -2,8 +2,6 @@ buildscript {
     ext {
         kotlin_version = '1.9.23'
         // Define las versiones de SDK aquí para que sean consistentes en todo el proyecto.
-        compileSdkVersion = 36
-        targetSdkVersion = 36
     }
 
     repositories {
