@@ -1,13 +1,18 @@
 buildscript {
-    ext.kotlin_version = '1.9.23'
+    ext {
+        kotlin_version = '1.9.23'
+        // Define las versiones de SDK aquí para que sean consistentes en todo el proyecto.
+        compileSdkVersion = 34
+        targetSdkVersion = 34
+    }
 
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.2'
-        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.android.tools.build:gradle:8.4.1' // Versión más moderna y estable de AGP
+        classpath 'com.google.gms:google-services:4.4.2' // Versión actualizada del plugin de Google Services
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Utiliza kotlin_version aquí
     }
 }

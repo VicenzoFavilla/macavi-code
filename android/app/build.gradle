@@ -5,9 +5,6 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
-ext.compileSdkVersion = 34
-ext.targetSdkVersion = 34
-
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -27,7 +24,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.Macavi.app"
-    compileSdkVersion ext.compileSdkVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
     ndkVersion = flutter.ndkVersion
 
@@ -35,7 +32,7 @@ android {
         applicationId "com.Macavi.app"
         // Firebase y otros plugins modernos funcionan mejor con 21 o superior.
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion ext.targetSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
