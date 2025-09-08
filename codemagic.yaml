@@ -5,6 +5,8 @@ workflows:
     # Define el tipo de máquina virtual para la compilación
     instance_type: mac_mini_m1 
     environment:
+      # Especifica la versión de Java. Java 17 es necesaria para las versiones modernas de Gradle.
+      java: 17
       flutter: stable # Usa la última versión estable de Flutter
       groups:
         # Carga el grupo de variables de entorno seguras que creaste en la UI de Codemagic.
