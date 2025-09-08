@@ -14,17 +14,17 @@ dependencies:
   flutter:
     sdk: flutter
   dots_indicator: ^4.0.1
-  firebase_auth: ^5.2.0
-  firebase_core: ^3.4.0
-  google_sign_in: ^6.2.1
-  sign_in_with_apple: ^6.1.4
+  firebase_auth: ^6.0.2
+  firebase_core: ^4.1.0
+  google_sign_in: ^7.1.1
+  sign_in_with_apple: ^7.0.1
   url_launcher: ^6.0.20
   http: ^1.3.0
-  firebase_messaging: ^15.1.0
+  firebase_messaging: ^16.0.1
   shared_preferences: ^2.0.0
-  cloud_firestore: ^5.0.0
-  app_links: ^3.5.1
-  intl: ^0.18.1
+  cloud_firestore: ^6.0.1
+  app_links: ^6.4.1
+  intl: ^0.20.2
 
 
   cupertino_icons: ^1.0.8
@@ -33,7 +33,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   change_app_package_name: ^1.1.0
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
