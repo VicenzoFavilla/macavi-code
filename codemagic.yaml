@@ -19,6 +19,7 @@ workflows:
           echo "$GOOGLE_SERVICES_JSON_B64" | base64 --decode > "$CM_BUILD_DIR/android/app/google-services.json"
           ls -l "$CM_BUILD_DIR/android/app/google-services.json"
 
+
       - name: Set up keystore
         script: |
           if [ -z "$CM_KEYSTORE" ]; then
@@ -38,7 +39,11 @@ workflows:
 
       - name: Set up local.properties
         script: |
-          echo "flutter.sdk=$FLUTTER_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+          script: |
+            echo "flutter.sdk=$FLUTTER_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+            echo "flutter.versionName=1.10.0" >> "$CM_BUILD_DIR/android/local.properties"
+            echo "flutter.versionCode=13" >> "$CM_BUILD_DIR/android/local.properties"
+            cat "$CM_BUILD_DIR/android/local.properties"
 
       - name: Set up firebase_options.dart
         script: |
@@ -74,7 +79,12 @@ workflows:
 
       - name: Build AAB
         script: |
-          flutter build appbundle --release --build-number=$CM_BUILD_NUMBER --android-skip-build-dependency-validation
+          flutter build appbundle --release \
+            --build-name=1.10.0 \
+            --build-number=13 \
+            --android-skip-build-dependency-validation \
+            --dart-define=FIREBASE_API_KEY_ANDROID=$FIREBASE_API_KEY_ANDROID \
+            --dart-define=FIREBASE_APP_ID_ANDROID=$FIREBASE_APP_ID_ANDROID
 
     artifacts:
       - build/app/outputs/bundle/release/*.aab
