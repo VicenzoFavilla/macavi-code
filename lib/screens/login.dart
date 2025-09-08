@@ -51,8 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
   // Función para iniciar sesión con Google
   Future<void> _signInWithGoogle() async {
   try {
-    // API CHANGE: The `scopes` parameter is deprecated in the GoogleSignIn constructor.
-    // The 'email' scope is requested by default. We only need to remove that line.
+    // CORRECCIÓN: El parámetro `scopes` ya no se usa en el constructor.
+    // Quitarlo soluciona el error "Couldn't find constructor 'GoogleSignIn'".
+    // El email se solicita por defecto.
     final GoogleSignIn googleSignIn = GoogleSignIn(
       serverClientId: '1049571319674-tqbkq5708knf9prqtnfvpqq6d89lgptf.apps.googleusercontent.com',
     );

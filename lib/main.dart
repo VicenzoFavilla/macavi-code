@@ -134,7 +134,8 @@ void _handleDeepLinksGlobal() async {
   });
 
   try {
-    final Uri? initialLink = await appLinks.getInitialAppLink();
+    // CORRECCIÓN: El método fue renombrado en la nueva versión del paquete.
+    final Uri? initialLink = await appLinks.getInitialLink();
     if (initialLink != null) {
       await _procesarDeepLinkGlobal(initialLink);
     }
