@@ -1,0 +1,7 @@
+# Normaliza todos los archivos de texto al final de línea nativo del sistema
+# y asegura que los archivos binarios no se modifiquen.
+* text=auto
+
+# Fuerza que los scripts de shell y gradlew siempre usen finales de línea LF (Unix).
+*.sh text eol=lf
+gradlew text eol=lf
