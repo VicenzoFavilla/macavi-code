@@ -1,0 +1,33 @@
+# Archivos generados por Dart/Flutter.
+.dart_tool/
+.packages
+build/
+
+# Archivos generados por el IDE.
+.idea/
+.vscode/
+*.iml
+
+# Archivos de sistema operativo.
+.DS_Store
+
+# Archivos de log y temporales.
+*.log
+
+# Archivos sensibles y de configuración local de Android.
+# Tu codemagic.yaml ya los genera de forma segura en el CI/CD.
+android/key.properties
+android/local.properties
+android/app/google-services.json
+
+# Archivos sensibles de Firebase generados.
+# Tu codemagic.yaml ya lo genera de forma segura en el CI/CD.
+lib/firebase_options.dart
+
+# Artefactos de compilación de iOS.
+ios/Pods/
+ios/Flutter/App.framework
+ios/Flutter/engine.xcconfig
+ios/Flutter/Generated.xcconfig
+ios/.symlinks/
+ios/Runner.xcworkspace/
