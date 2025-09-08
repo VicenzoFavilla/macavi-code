@@ -1,7 +1,11 @@
 buildscript {
     ext {
-        kotlin_version = '1.9.23'
+        // Se alinea la versión de Kotlin con settings.gradle para resolver la advertencia.
+        kotlin_version = '2.1.0'
         // Define las versiones de SDK aquí para que sean consistentes en todo el proyecto.
+        // Esto soluciona el error "Cannot get property 'compileSdkVersion'".
+        compileSdkVersion = 36
+        targetSdkVersion = 36
     }
 
     repositories {
