@@ -12,6 +12,9 @@ import 'package:http/http.dart' as http;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+// Centralized backend URL to avoid hardcoding.
+const String BACKEND_BASE_URL = 'https://macavi-1049571319674.southamerica-west1.run.app';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -92,16 +95,16 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToLogin() async {
+    // The Future.delayed is removed as it's a code smell, likely a workaround for a race condition.
+    // A direct check is more reliable.
     final prefs = await SharedPreferences.getInstance();
-    // Esperamos un momento para asegurar que cualquier login previo haya guardado los datos
-    await Future.delayed(const Duration(milliseconds: 500));
     final String? uid = prefs.getString('user_id');
 
     print("🔎 UID encontrado en Splash: $uid");
 
     if (!mounted) return;
 
-    if (uid != null) {
+    if (uid != null && uid.isNotEmpty) {
       Navigator.pushReplacementNamed(context, '/menu', arguments: uid);
     } else {
       Navigator.pushReplacementNamed(context, '/');
@@ -125,25 +128,68 @@ class _SplashScreenState extends State<SplashScreen> {
 }
 
 void _handleDeepLinksGlobal() async {
-  final appLinks = AppLinks();
-
-  appLinks.uriLinkStream.listen((Uri uri) async {
-    await _procesarDeepLinkGlobal(uri);
-  }, onError: (err) {
-    print("❌ Error en Deep Link (stream): $err");
-  });
-
   try {
-    // CORRECCIÓN: El método fue renombrado en la nueva versión del paquete.
-    final Uri? initialLink = await appLinks.getInitialLink();
+    final appLinks = AppLinks();
+
+    // Escucha los enlaces que llegan mientras la app está abierta.
+    appLinks.uriLinkStream.listen((uri) async {
+      print("🔹 Deep Link recibido (stream): $uri");
+      try {
+        await _procesarDeepLinkGlobal(uri);
+      } catch (e) {
+        print("❌ Error al procesar deep link desde el stream: $e");
+      }
+    }, onError: (err) {
+      print("❌ Error en el stream de deep links: $err");
+    });
+
+    // Obtiene el enlace inicial que abrió la app (cuando estaba cerrada).
+    // FIX: The method name depends on the app_links package version.
+    // For version 3.x (which you are using), the correct method is `getInitialAppLink()`.
+    final Uri? initialLink = await appLinks.getInitialAppLink();
     if (initialLink != null) {
+      print("🔹 Deep Link inicial encontrado: $initialLink");
       await _procesarDeepLinkGlobal(initialLink);
     }
   } catch (e) {
-    print("❌ Error al obtener initial app link: $e");
+    print("❌ Error al inicializar o procesar deep links: $e");
   }
 }
 
+/// Attempts to clear the user's cart on the backend.
+/// Returns `true` if successful, `false` otherwise.
+Future<bool> _vaciarCarritoGlobal() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final uid = prefs.getString('user_id');
+
+    if (uid == null || uid.isEmpty) {
+      print("⚠️ No se encontró user_id para vaciar el carrito.");
+      return false;
+    }
+
+    print("🧑 UID usado para vaciar carrito: $uid");
+
+    final url = Uri.parse('$BACKEND_BASE_URL/usuario/$uid/carrito');
+    final response = await http.delete(url);
+
+    if (response.statusCode == 200) {
+      print("🧹 Carrito vaciado correctamente desde Deep Link");
+      return true;
+    } else {
+      print("❌ Error al vaciar el carrito: ${response.statusCode} ${response.body}");
+      return false;
+    }
+  } catch (e) {
+    print("❌ Excepción al vaciar carrito: $e");
+    return false;
+  }
+}
+
+/// Processes a deep link to handle post-payment navigation.
+///
+/// If the payment was approved, it clears the user's cart and navigates
+/// to the "Thank You" screen. Otherwise, it navigates to the main menu.
 Future<void> _procesarDeepLinkGlobal(Uri uri) async {
   print("🔹 Deep Link recibido (global): ${uri.toString()}");
   print("📍 URI HOST: ${uri.host}");
@@ -167,33 +213,21 @@ Future<void> _procesarDeepLinkGlobal(Uri uri) async {
     print("🔎 collectionStatus: $collectionStatus");
 
     if (status == "approved" && collectionStatus == "approved") {
-  print("✅ Pago confirmado con ID: $paymentId");
+      print("✅ Pago confirmado con ID: $paymentId");
 
-  await prefs.setBool('desde_pago', true);
+      // Set a flag that can be used by other parts of the app if needed.
+      await prefs.setBool('desde_pago', true);
 
-  final uid = prefs.getString('user_id'); // Asegurate que esto diga user_id ✅
+      // Attempt to clear the cart and navigate.
+      await _vaciarCarritoGlobal();
 
-  print("🧑 UID usado para vaciar carrito: $uid"); // 👈 ESTE ES EL PRINT
-
-  final url = Uri.parse('https://macavi-1049571319674.southamerica-west1.run.app/usuario/$uid/carrito');
-
-  try {
-    final response = await http.delete(url);
-    if (response.statusCode == 200) {
-      print("🧹 Carrito vaciado correctamente desde Deep Link");
+      // Navigate to the "Thank You" screen regardless of cart clearing success,
+      // as the payment itself was successful.
+      navigatorKey.currentState?.pushReplacementNamed('/gracias');
     } else {
-      print("❌ Error al vaciar el carrito: ${response.body}");
-    }
-  } catch (e) {
-    print("❌ Excepción al vaciar carrito: $e");
-  }
-
-  navigatorKey.currentState?.pushReplacementNamed('/gracias');
-}
-
- else {
-      print("❌ El pago no fue aprobado correctamente.");
-      navigatorKey.currentState?.pushReplacementNamed('/carrito');
+      print("❌ El pago no fue aprobado correctamente. Navegando al menú.");
+      // BUG FIX: The '/carrito' route does not exist. Navigate to the main menu instead.
+      navigatorKey.currentState?.pushReplacementNamed('/menu', arguments: uid);
     }
   }
 }

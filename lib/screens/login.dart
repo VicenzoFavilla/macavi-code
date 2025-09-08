@@ -62,8 +62,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (googleUser == null) return;
 
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    // API CHANGE for google_sign_in v7+: `accessToken` is no longer provided.
+    // The credential for Firebase should be created with the idToken.
     final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
 
